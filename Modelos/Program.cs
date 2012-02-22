@@ -21,8 +21,27 @@ namespace RAI.Modelos
             Console.WriteLine(ind.IDF.Count + " términos en " + ind.NumDocuments + " documentos");
 
             // Instanciar el modelo
-            IModelo mod = new ProductoEscalarTF();
-
+			Dictionary<int, string> models = new Dictionary<int, string>(){
+				{0, "ProductoEscalarTF"},
+				{1, "ProductoEscalarTFIDF"},
+				{2, "CosenoTF"},
+				{3, "CosenoTFIDF"}
+			};
+			Console.WriteLine();
+			Console.WriteLine("Elige un modelo:");
+			for (int i=0; i<models.Count; i++) {
+				string m;
+				models.TryGetValue(i, out m);
+				Console.WriteLine(i+": "+m);
+			}
+			string model = Console.ReadLine();
+			string cls;
+			models.TryGetValue(Convert.ToInt32(model), out cls);
+			Console.WriteLine("Modelo "+cls+" elegido.");
+			Console.WriteLine();
+			Type model_type = Type.GetType("RAI.Modelos."+cls);
+			IModelo mod = (IModelo) Activator.CreateInstance(model_type);
+			
             // Ejecutar consultas
             bool salir = false;
             while (!salir) {
