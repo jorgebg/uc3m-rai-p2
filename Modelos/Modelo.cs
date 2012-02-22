@@ -58,8 +58,32 @@ namespace RAI.Modelos
         public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
         {
             Dictionary<string, double> resultados = new Dictionary<string, double>();
-
-            /* TODO */
+			
+            var grupos = queryTerms.GroupBy(t => t); // LINQ: Devuelve un enumerado de pares <término, ocurrencias>
+            
+            
+            // Sólo hace falta iterar los términos de la consulta.
+            // Los que no estén tienen peso 0 así que no contribuyen al sumatorio.
+            foreach (var g in grupos) {
+				int idf;
+                Dictionary<string, int> TFs;
+				ind.IDF.TryGetValue(g.Key, out idf);
+				
+                if (ind.TF.TryGetValue(g.Key, out TFs)) {
+                    // El término de la query está en el índice. Si no está no se hace nada porque no contribuiría al sumatorio al tener peso 0.
+                    foreach (var docTF in TFs) {
+                        double score;
+						double score_incr = docTF.Value * g.Count() * idf;
+                        if (resultados.TryGetValue(docTF.Key, out score)) {
+                            // El documento ya está en los resultados, incrementar
+                            resultados[docTF.Key] = score + score_incr;
+                        } else {
+                            // El documento no está en los resultados
+                            resultados[docTF.Key] = score_incr;
+                        }
+                    }
+                }
+            }
             
             return resultados;
         }
