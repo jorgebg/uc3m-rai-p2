@@ -53,7 +53,7 @@ namespace RAI.Modelos
                     int termIDF;
                     if (this.IDF.TryGetValue(g.Key, out termIDF)) {
                         // El término ya está en el índice
-                        this.IDF[g.Key] = termIDF++;
+                        this.IDF[g.Key] = ++termIDF;
                         this.TF[g.Key][docID] = g.Count();
                         
                     } else {
