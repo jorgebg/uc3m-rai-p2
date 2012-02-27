@@ -21,7 +21,7 @@ namespace RAI.Modelos
     /// </summary>
     public class ProductoEscalarTF : IModelo
     {
-        public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
+        virtual public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
         {
             Dictionary<string, double> resultados = new Dictionary<string, double>();
 
@@ -55,7 +55,7 @@ namespace RAI.Modelos
     /// </summary>
     public class ProductoEscalarTFIDF : IModelo
     {
-        public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
+        virtual public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
         {
             Dictionary<string, double> resultados = new Dictionary<string, double>();
 			
@@ -91,27 +91,78 @@ namespace RAI.Modelos
     /// <summary>
     /// Implementa la función de similitud del coseno con los pesos según TF.
     /// </summary>
-    public class CosenoTF : IModelo
+    public class CosenoTF : ProductoEscalarTF
     {
-        public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
+        override public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
         {
+			
             Dictionary<string, double> resultados = new Dictionary<string, double>();
 
-            /* TODO */
-
+            resultados = base.RunQuery(queryTerms, ind);
+			
+            var grupos = queryTerms.GroupBy(t => t); // LINQ: Devuelve un enumerado de pares <término, ocurrencias>
+            
+            double queryProduct = 0;
+            foreach (var g in grupos) {
+				queryProduct += g.Count();
+			}
+			
+			Dictionary<string, double> documentProducts = new Dictionary<string, double>();
+			foreach (var TF in ind.TF) {
+				foreach(var document in TF.Value) {
+					double product = 0;
+					documentProducts.TryGetValue(document.Key, out product);
+					documentProducts[document.Key] = product + document.Value*document.Value;
+				}
+			}
+			
+			foreach(var product in documentProducts) {
+				double score = 0;
+				if(resultados.TryGetValue(product.Key, out score)) {
+					//Console.WriteLine(product.Key + ": " + score + "/sqrt(" + product.Value + "*" + queryProduct+") = "+score+"/"+Math.Sqrt(product.Value*queryProduct)+" = "+(score/Math.Sqrt(product.Value*queryProduct)));
+					resultados[product.Key] = score / Math.Sqrt(product.Value*queryProduct);
+				}
+			}
+			
+			
             return resultados;
+			
         }
     }
     /// <summary>
     /// Implementa la función de similitud del coseno con los pesos según TFxIDF.
     /// </summary>
-    public class CosenoTFIDF : IModelo
+    public class CosenoTFIDF : ProductoEscalarTFIDF
     {
-        public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
+        override public Dictionary<string, double> RunQuery(string[] queryTerms, Indice ind)
         {
             Dictionary<string, double> resultados = new Dictionary<string, double>();
 
-            /* TODO */
+            resultados = base.RunQuery(queryTerms, ind);
+			
+            var grupos = queryTerms.GroupBy(t => t); // LINQ: Devuelve un enumerado de pares <término, ocurrencias>
+            
+            double queryProduct = 0;
+            foreach (var g in grupos) {
+				queryProduct += g.Count();
+			}
+			
+			Dictionary<string, double> documentProducts = new Dictionary<string, double>();
+			foreach (var TF in ind.TF) {
+				foreach(var document in TF.Value) {
+					double product = 0;
+					documentProducts.TryGetValue(document.Key, out product);
+					documentProducts[document.Key] = product + document.Value*document.Value;
+				}
+			}
+			
+			foreach(var product in documentProducts) {
+				double score = 0;
+				if(resultados.TryGetValue(product.Key, out score)) {
+					//Console.WriteLine(product.Key + ": " + score + "/sqrt(" + product.Value + "*" + queryProduct+") = "+score+"/"+Math.Sqrt(product.Value*queryProduct)+" = "+(score/Math.Sqrt(product.Value*queryProduct)));
+					resultados[product.Key] = score / Math.Sqrt(product.Value*queryProduct);
+				}
+			}
 
             return resultados;
         }
