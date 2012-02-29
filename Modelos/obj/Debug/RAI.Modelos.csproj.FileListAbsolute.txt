@@ -1,5 +1,0 @@
-D:\Visual Studio 2008\Projects\Modelos\Modelos\obj\Debug\ResolveAssemblyReference.cache
-D:\Visual Studio 2008\Projects\Modelos\Modelos\bin\Debug\Modelos.exe
-D:\Visual Studio 2008\Projects\Modelos\Modelos\bin\Debug\Modelos.pdb
-D:\Visual Studio 2008\Projects\Modelos\Modelos\obj\Debug\Modelos.exe
-D:\Visual Studio 2008\Projects\Modelos\Modelos\obj\Debug\Modelos.pdb
